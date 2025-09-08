@@ -1,0 +1,331 @@
+import React, { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Image as ImageIcon, Wand2, Loader2, Download, Trash2, Settings2, Sparkles, Plus, Camera } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+/**
+ * Bear Slides — single-file React app
+ * ------------------------------------------------------------
+ * What this is:
+ *  - A polished front-end that can show AI‑generated pictures of bears going down slides.
+ *  - Ships with an instant "Demo" generator (procedural SVGs) so it works out-of-the-box.
+ *  - Includes a plug-and-play API mode to call a real image model (OpenAI, Stability, Replicate, etc.).
+ *
+ * How to wire real AI:
+ *  1) Create a backend route (e.g., /api/generate) that calls your preferred model using your API key.
+ *     Return an array of images as data URLs (base64) or https URLs: { images: string[] }.
+ *  2) In the UI below, set `mode` to "api" (or use the Settings tab) and set `API_ENDPOINT` if different from /api/generate.
+ *  3) Hit Generate.
+ *
+ * Example minimal Express route (server):
+ *  app.post('/api/generate', async (req, res) => {
+ *    const { prompt, n = 4, size = '1024x1024', seed } = req.body;
+ *    // Call your model here (OpenAI, Stability, etc.).
+ *    // Return: { images: ["https://...", "data:image/png;base64,....", ...] }
+ *    res.json({ images: [] });
+ *  });
+ */
+
+const DEFAULT_PROMPT = "A playful bear going down a colorful playground slide, bright, whimsical, high detail";
+const DEFAULT_N = 4;
+const DEFAULT_SIZE = "768x768";
+const API_ENDPOINT = "/api/generate"; // change if your backend uses a different path
+
+export default function BearSlidesSite() {
+  const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
+  const [n, setN] = useState(DEFAULT_N);
+  const [size, setSize] = useState(DEFAULT_SIZE);
+  const [seed, setSeed] = useState<string | number>("");
+  const [mode, setMode] = useState<"demo" | "api">("demo");
+  const [images, setImages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const onGenerate = async () => {
+    setLoading(true);
+    try {
+      if (mode === "demo") {
+        // Procedural SVG demo generation (no network calls)
+        const imgs = Array.from({ length: n }, (_, i) => svgBearSlideDataUrl(seed || Date.now() + i, size));
+        await sleep(400); // tiny delay for UX
+        setImages(imgs);
+      } else {
+        const res = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, n, size, seed })
+        });
+        if (!res.ok) throw new Error("Generation failed");
+        const data = await res.json();
+        if (!data?.images || !Array.isArray(data.images)) throw new Error("Invalid response shape");
+        setImages(data.images);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong generating images. Check the console for details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearAll = () => setImages([]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50">
+      <header className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/40 border-b">
+        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.div initial={{ rotate: -10, scale: 0.9 }} animate={{ rotate: 0, scale: 1 }} transition={{ type: "spring", stiffness: 200 }} className="p-2 rounded-2xl bg-orange-100">
+              <Camera className="w-5 h-5" />
+            </motion.div>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">Bear Slides</h1>
+            <span className="hidden md:inline text-sm text-muted-foreground">AI bear pics going wheee →</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
+              <TabsList>
+                <TabsTrigger value="demo">Demo</TabsTrigger>
+                <TabsTrigger value="api">API</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <Button variant="outline" size="sm" onClick={clearAll} className="rounded-2xl">
+              <Trash2 className="w-4 h-4 mr-1" /> Clear
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 py-6">
+        <div className="grid md:grid-cols-5 gap-6">
+          {/* Controls */}
+          <Card className="md:col-span-2 rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Wand2 className="w-5 h-5"/> Generate bears</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Prompt</label>
+                <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={DEFAULT_PROMPT} className="rounded-xl" />
+                <p className="text-xs text-muted-foreground">Tip: Add style tags like “watercolor”, “photorealistic”, “isometric”. The base concept (bear on a slide) is always included.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Images: {n}</label>
+                  <Slider value={[n]} min={1} max={12} step={1} onValueChange={([v]) => setN(v)} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Canvas size</label>
+                  <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full border rounded-xl px-3 py-2 bg-white">
+                    {(["512x512","768x768","1024x1024","1024x1536","1536x1024"]).map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Seed (optional)</label>
+                  <Input value={seed} onChange={(e) => setSeed(e.target.value)} placeholder="random" className="rounded-xl"/>
+                </div>
+                <div className="flex items-end">
+                  <Button onClick={onGenerate} disabled={loading} className="w-full rounded-2xl">
+                    {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin"/>Generating…</>) : (<><Sparkles className="w-4 h-4 mr-2"/>Generate</>)}
+                  </Button>
+                </div>
+              </div>
+
+              {mode === "api" && (
+                <Callout title="API mode" description={`This will POST { prompt, n, size, seed } to ${API_ENDPOINT}. Update the endpoint in code if needed.`} />
+              )}
+
+              {mode === "demo" && (
+                <Callout title="Demo mode" description="Images are procedurally drawn SVGs (client-only). Switch to API for real model outputs." />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Gallery */}
+          <div className="md:col-span-3">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold flex items-center gap-2"><ImageIcon className="w-5 h-5"/> Gallery</h2>
+              <span className="text-sm text-muted-foreground">{images.length ? `${images.length} image${images.length>1?"s":""}` : "No images yet"}</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <AnimatePresence>
+                {images.map((src, idx) => (
+                  <motion.div key={idx} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}>
+                    <Card className="rounded-2xl overflow-hidden shadow-sm group">
+                      <div className="relative aspect-square bg-white flex items-center justify-center">
+                        <img src={src} alt={`Bear on slide ${idx+1}`} className="w-full h-full object-cover"/>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex items-end justify-end gap-2 bg-gradient-to-t from-black/40 to-transparent">
+                          <IconButton onClick={() => downloadImage(src, `bear-slide-${idx+1}.png`)} title="Download"><Download className="w-4 h-4"/></IconButton>
+                          <IconButton onClick={() => removeAt(idx)} title="Remove"><Trash2 className="w-4 h-4"/></IconButton>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {!images.length && (
+                <Card className="rounded-2xl border-dashed">
+                  <CardContent className="p-8 flex items-center justify-center text-center text-muted-foreground">
+                    <div>
+                      <Plus className="w-6 h-6 mx-auto mb-2"/>
+                      <p>Click <span className="font-medium">Generate</span> to create some bears on slides.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <footer className="mt-12 text-center text-sm text-muted-foreground">
+          Built with ❤️ — swap to API mode to plug in your favorite image model.
+        </footer>
+      </main>
+    </div>
+  );
+
+  // helpers
+  function removeAt(i: number) {
+    setImages(prev => prev.filter((_, idx) => idx !== i));
+  }
+}
+
+function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
+
+function IconButton({ children, onClick, title }: { children: React.ReactNode; onClick?: () => void; title?: string }) {
+  return (
+    <Button size="icon" variant="secondary" className="rounded-xl bg-white/90 hover:bg-white" onClick={onClick} title={title}>
+      {children}
+    </Button>
+  );
+}
+
+function Callout({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="flex gap-3 p-3 rounded-xl bg-orange-50 border border-orange-200">
+      <Settings2 className="w-4 h-4 mt-0.5"/>
+      <div>
+        <div className="text-sm font-medium">{title}</div>
+        <div className="text-xs text-muted-foreground">{description}</div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Procedural SVG generator — draws a cute bear on a slide.
+ * This gives you instant visuals without any backend.
+ */
+function svgBearSlideDataUrl(seed: string | number, size: string) {
+  const [W, H] = size.split("x").map(Number);
+  const rng = mulberry32(hashSeed(seed));
+
+  // palette
+  const bg = pick(rng, ["#FFF7ED", "#FEF3C7", "#FFFBEB", "#FEE2E2", "#E0F2FE", "#ECFCCB"]);
+  const slide = pick(rng, ["#F97316", "#3B82F6", "#10B981", "#A855F7", "#EF4444", "#0EA5E9"]);
+  const bear = pick(rng, ["#7C4F2C", "#8B5E34", "#A16B47", "#6B4F4F", "#9A6C53"]);
+  const accent = pick(rng, ["#F59E0B", "#22C55E", "#60A5FA", "#F472B6", "#EAB308"]);
+
+  const faceTilt = (rng() - 0.5) * 20; // -10..10 deg
+  const slideCurve = 40 + rng() * 60; // curvature
+  const bearY = 40 + rng() * 20;
+
+  const svg = `
+  <svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 100 100'>
+    <defs>
+      <linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'>
+        <stop offset='0%' stop-color='${bg}'/>
+        <stop offset='100%' stop-color='#ffffff'/>
+      </linearGradient>
+      <filter id='shadow' x='-20%' y='-20%' width='140%' height='140%'>
+        <feDropShadow dx='0' dy='1.5' stdDeviation='1.5' flood-color='rgba(0,0,0,0.25)'/>
+      </filter>
+    </defs>
+    <rect width='100' height='100' fill='url(#g1)'/>
+
+    <!-- slide base -->
+    <path d='M 20 10 C ${30+slideCurve/2} 20, ${40+slideCurve} 40, 80 50 L 80 70 C ${50+slideCurve} 62, ${30+slideCurve/3} 42, 20 32 Z'
+          fill='${slide}' opacity='0.85' filter='url(#shadow)' />
+
+    <!-- ladder -->
+    <g stroke='${accent}' stroke-width='2' stroke-linecap='round'>
+      <line x1='15' y1='60' x2='15' y2='25' />
+      <line x1='22' y1='58' x2='22' y2='23' />
+      ${[28,34,40,46,52,58].map(y=>`<line x1='15' y1='${y}' x2='22' y2='${y-2}' />`).join("")}
+    </g>
+
+    <!-- bear body -->
+    <g transform='translate(45, ${bearY}) rotate(${faceTilt})'>
+      <ellipse cx='0' cy='18' rx='9' ry='12' fill='${bear}' filter='url(#shadow)'/>
+      <circle cx='0' cy='6' r='6.5' fill='${bear}'/>
+      <!-- ears -->
+      <circle cx='-4' cy='0' r='2.2' fill='${bear}'/>
+      <circle cx='4' cy='0' r='2.2' fill='${bear}'/>
+      <!-- muzzle -->
+      <ellipse cx='0' cy='8' rx='3.5' ry='2.6' fill='#FCE7D8'/>
+      <circle cx='0' cy='7.2' r='0.8' fill='#3C2A1E'/>
+      <!-- eyes -->
+      <circle cx='-2' cy='4.5' r='0.7' fill='#1F2937'/>
+      <circle cx='2' cy='4.5' r='0.7' fill='#1F2937'/>
+      <!-- arms -->
+      <path d='M -7 15 Q -10 14 -9 11' stroke='${bear}' stroke-width='3' stroke-linecap='round' fill='none'/>
+      <path d='M 7 15 Q 10 14 9 11' stroke='${bear}' stroke-width='3' stroke-linecap='round' fill='none'/>
+      <!-- legs -->
+      <path d='M -4 27 Q -6 29 -8 31' stroke='${bear}' stroke-width='3' stroke-linecap='round' fill='none'/>
+      <path d='M 4 27 Q 6 29 8 31' stroke='${bear}' stroke-width='3' stroke-linecap='round' fill='none'/>
+    </g>
+
+    <!-- sparkles -->
+    ${Array.from({length: 6}, () => sparkle(rng)).join("")}
+  </svg>`;
+
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+}
+
+function sparkle(rng: () => number) {
+  const x = 10 + rng()*80;
+  const y = 10 + rng()*70;
+  const s = 0.8 + rng()*1.6;
+  return `<g transform='translate(${x},${y}) scale(${s})' opacity='0.6'>
+    <path d='M0 -2 L0 2 M-2 0 L2 0' stroke='#ffffff' stroke-width='0.6' stroke-linecap='round'/>
+  </g>`;
+}
+
+// PRNG helpers
+function mulberry32(a: number) {
+  return function() {
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+function hashSeed(s: string | number): number {
+  if (typeof s === 'number') return s >>> 0;
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0) || 123456789;
+}
+function pick<T>(rng: () => number, arr: T[]): T { return arr[Math.floor(rng()*arr.length)] }
+
+async function downloadImage(src: string, filename: string) {
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
