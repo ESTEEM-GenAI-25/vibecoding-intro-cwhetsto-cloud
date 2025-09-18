@@ -1,158 +1,212 @@
-import React from "react";
-import { Mail, Github, Linkedin } from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carter Whetstone — Portfolio</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      color: #111;
+      line-height: 1.6;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 5%;
+      border-bottom: 1px solid #e5e7eb;
+      z-index: 1000;
+    }
+    header h1 {
+      font-weight: 800;
+      font-size: 1.3rem;
+      background: linear-gradient(90deg,#ec4899,#06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    nav a {
+      margin-left: 1.5rem;
+      text-decoration: none;
+      color: #444;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #ec4899;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 6rem 10%;
+      gap: 2rem;
+    }
+    .hero h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg,#ec4899,#06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: #555;
+      max-width: 500px;
+      margin-bottom: 1.5rem;
+    }
+    .hero img {
+      width: 100%;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transform: rotate(2deg);
+      transition: transform 0.4s ease;
+    }
+    .hero img:hover {
+      transform: rotate(0deg) scale(1.02);
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg,#ec4899,#06b6d4);
+      color: #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+    .btn-outline {
+      border: 2px solid #ddd;
+      color: #444;
+      margin-left: 0.8rem;
+    }
+    .btn-outline:hover {
+      border-color: #ec4899;
+      color: #ec4899;
+    }
+    section {
+      padding: 5rem 10%;
+    }
+    section h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+      gap: 2rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 1rem;
+      padding: 2rem;
+      border: 1px solid #eee;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    .card h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+    }
+    .card p {
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    footer {
+      background: #111;
+      color: #eee;
+      text-align: center;
+      padding: 2rem 5%;
+      margin-top: 4rem;
+    }
+    footer a {
+      color: #06b6d4;
+      margin: 0 0.5rem;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Carter Whetstone</h1>
+    <nav>
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="./resume.pdf" class="btn btn-primary">Resume</a>
+    </nav>
+  </header>
 
-export default function CarterWhetstonePortfolio() {
-  const name = "Carter Whetstone";
-  const role = "M.S. Candidate, ESTEEM Program — University of Notre Dame";
-  const location = "Notre Dame / Indianapolis area";
-  const email = "youremail@example.com"; // <-- replace
-  const github = "https://github.com/your-username"; // <-- replace
-  const linkedin = "https://www.linkedin.com/in/your-profile"; // <-- replace
-  const resumeURL = "./resume.pdf"; // <-- replace if you host resume
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-black text-white font-sans">
-      {/* HEADER */}
-      <header className="sticky top-0 backdrop-blur-md bg-black/30 z-50 border-b border-white/10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg">CW</div>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight">{name}</h1>
-              <p className="text-sm text-gray-400">{role}</p>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <a href="#projects" className="hover:text-sky-400 transition">Projects</a>
-            <a href="#about" className="hover:text-sky-400 transition">About</a>
-            <a href="#contact" className="hover:text-sky-400 transition">Contact</a>
-            <a href={resumeURL} download className="bg-gradient-to-r from-sky-500 to-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">Resume</a>
-          </nav>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-6">
-        {/* HERO */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center py-20">
-          <div className="space-y-6">
-            <h2 className="text-5xl md:text-6xl font-extrabold leading-tight bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent animate-text">
-              Hi, I’m {name}
-            </h2>
-            <p className="text-lg text-gray-300 max-w-xl leading-relaxed">
-              M.S. student at Notre Dame’s ESTEEM program. Exploring how flight simulators & rehearsal tools make training sharper, cheaper, and more scalable. Obsessed with product, analytics, and bringing clarity to complex systems.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a href={github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white text-black hover:bg-gray-200 transition shadow-md">
-                <Github className="w-5 h-5" /> GitHub
-              </a>
-              <a href={linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-sky-500 hover:bg-sky-600 transition shadow-md">
-                <Linkedin className="w-5 h-5" /> LinkedIn
-              </a>
-              <a href={`mailto:${email}`} className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-indigo-500 hover:bg-indigo-600 transition shadow-md">
-                <Mail className="w-5 h-5" /> Email
-              </a>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-full overflow-hidden shadow-2xl border-4 border-sky-500 animate-float">
-              <img
-                src="https://avatars.githubusercontent.com/u/000000?v=4" // replace with real pic
-                alt="{name}"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* PROJECTS */}
-        <section id="projects" className="py-16">
-          <h2 className="text-3xl font-bold mb-6">Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 hover:scale-[1.02] transition transform">
-              <h3 className="text-xl font-semibold">Flight Simulator Training — Capstone</h3>
-              <p className="text-gray-400 mt-2">How rehearsal and simulation sharpen pilot readiness while reducing training hours.</p>
-              <div className="mt-4 flex gap-4 text-sm">
-                <a href="#" className="text-sky-400 hover:underline">Read case study</a>
-                <a href="#" className="text-sky-400 hover:underline">GitHub</a>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 hover:scale-[1.02] transition transform">
-              <h3 className="text-xl font-semibold">Training Analytics Dashboard</h3>
-              <p className="text-gray-400 mt-2">Prototype dashboard to visualize onboarding efficiency, completion rates & coaching needs.</p>
-              <div className="mt-4 flex gap-4 text-sm">
-                <a href="#" className="text-sky-400 hover:underline">Live demo</a>
-                <a href="#" className="text-sky-400 hover:underline">Repo</a>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 hover:scale-[1.02] transition transform">
-              <h3 className="text-xl font-semibold">Customer Discovery Research</h3>
-              <p className="text-gray-400 mt-2">Synthesizing interviews with artists, curators & collectors to inform art-tech strategy.</p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 hover:scale-[1.02] transition transform">
-              <h3 className="text-xl font-semibold">Biotech Strategy Exploration</h3>
-              <p className="text-gray-400 mt-2">Exploring GTM & commercialization pathways for early-stage therapeutic startups.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ABOUT */}
-        <section id="about" className="py-16">
-          <h2 className="text-3xl font-bold mb-6">About</h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            <div className="md:col-span-2 space-y-4">
-              <p className="text-gray-300 leading-relaxed">
-                I’m in Notre Dame’s ESTEEM program, researching training systems that blend analytics, simulation, and strategy. My work spans aerospace, edtech, and biotech commercialization. I love turning messy data into clear dashboards & actionable insights.
-              </p>
-              <ul className="list-disc list-inside text-gray-400 space-y-2">
-                <li>Start with customer discovery, validate assumptions fast</li>
-                <li>Design data-first solutions that make training measurable</li>
-                <li>Communicate insights clearly to executives</li>
-              </ul>
-            </div>
-            <div className="bg-slate-800 rounded-2xl p-6 border border-white/10">
-              <h3 className="font-semibold text-lg">Quick facts</h3>
-              <ul className="mt-3 text-sm text-gray-400 space-y-2">
-                <li><strong>Program:</strong> ESTEEM (Notre Dame)</li>
-                <li><strong>Focus:</strong> Training, Simulation, Biotech Strategy</li>
-                <li><strong>Location:</strong> {location}</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* CONTACT */}
-        <section id="contact" className="py-16">
-          <h2 className="text-3xl font-bold mb-6">Contact</h2>
-          <p className="text-gray-400 max-w-2xl mb-8">Always open to collaborations, interviews, or product conversations.</p>
-          <div className="grid md:grid-cols-2 gap-10">
-            <form className="bg-slate-800 p-6 rounded-2xl border border-white/10 space-y-4">
-              <input className="w-full px-4 py-2 rounded-lg bg-slate-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Your name" />
-              <input className="w-full px-4 py-2 rounded-lg bg-slate-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="you@example.com" />
-              <textarea className="w-full px-4 py-2 h-28 rounded-lg bg-slate-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Message..." />
-              <button type="button" onClick={() => window.location.href = `mailto:${email}?subject=Hello%20from%20your%20site`} className="w-full py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-medium hover:opacity-90 transition">
-                Send Message
-              </button>
-            </form>
-            <div className="bg-slate-800 p-6 rounded-2xl border border-white/10 space-y-4">
-              <p className="text-gray-300 text-sm leading-relaxed">Carter is a product-driven researcher blending data, design, and strategy to make training systems sharper. Strong focus on bridging technical and business needs.</p>
-              <div className="flex gap-3 mt-4">
-                <a href={github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black hover:bg-gray-200 transition"><Github className="w-4 h-4" /> GitHub</a>
-                <a href={linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 transition"><Linkedin className="w-4 h-4" /> LinkedIn</a>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer className="py-8 text-center text-gray-500 text-sm border-t border-white/10">© {new Date().getFullYear()} {name}. Built with ♥ and deployed on GitHub Pages.</footer>
+  <section class="hero">
+    <div>
+      <h2>Hi, I’m Carter</h2>
+      <p>M.S. student in the ESTEEM program at Notre Dame. I research how organizations in aerospace and aviation use simulation & analytics to improve training, readiness, and strategy.</p>
+      <a href="#projects" class="btn btn-primary">View My Work</a>
+      <a href="mailto:youremail@example.com" class="btn btn-outline">Get in Touch</a>
     </div>
-  );
-}
+    <img src="https://source.unsplash.com/random/600x600?abstract" alt="Carter Whetstone photo">
+  </section>
 
-// Tailwind animation utility
-// Add this to tailwind.config.js under extend: { animation, keyframes }
-// animation: { float: 'float 6s ease-in-out infinite', text: 'text 4s ease infinite' },
-// keyframes: { float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }, text: { '0%,100%': { 'background-size': '200% 200%', 'background-position': 'left center' }, '50%': { 'background-size': '200% 200%', 'background-position': 'right center' } } }
+  <section id="projects">
+    <h3>Selected Projects</h3>
+    <div class="projects">
+      <div class="card">
+        <h4>Flight Simulator Training — Capstone</h4>
+        <p>Research into how rehearsal and simulation improve pilot readiness and reduce recurrent training hours.</p>
+        <a href="#">Read case study</a>
+      </div>
+      <div class="card">
+        <h4>Training Analytics Dashboard</h4>
+        <p>Prototype dashboard to visualize onboarding effectiveness, completion rates, and coaching opportunities.</p>
+        <a href="#">Live demo</a>
+      </div>
+      <div class="card">
+        <h4>Customer Discovery Research</h4>
+        <p>Synthesizing interviews with artists, curators, and collectors to inform go-to-market strategy for an art-tech tool.</p>
+      </div>
+      <div class="card">
+        <h4>Biotech Strategy Exploration</h4>
+        <p>Exploring go-to-market pathways for therapeutic startups.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <h3>About Me</h3>
+    <p>Currently pursuing my M.S. in ESTEEM at the University of Notre Dame, I focus on bridging technical research with practical business applications. My work spans aerospace simulation, edtech analytics, and biotech strategy — always centered on how people learn, adapt, and innovate.</p>
+  </section>
+
+  <section id="contact">
+    <h3>Let’s Connect</h3>
+    <p>Reach out if you’d like to collaborate or learn more:</p>
+    <p>
+      <a href="mailto:youremail@example.com">Email</a> ·
+      <a href="https://github.com/your-username">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/your-profile">LinkedIn</a>
+    </p>
+  </section>
+
+  <footer>
+    <p>© 2025 Carter Whetstone · Built with creativity & coffee ☕</p>
+  </footer>
+</body>
+</html>
